@@ -27,6 +27,9 @@ public class Player : MonoBehaviour
     float elapsedTime = Mathf.Infinity;
     public bool dash;
 
+    public bool sprinting;
+    public float sprintMultiplier;
+
     float gravity;
     float jumpVelocity;
     Vector2 velocity;
@@ -46,6 +49,7 @@ public class Player : MonoBehaviour
         print("Gravity: " + gravity + "   Jump Velocity:   " + jumpVelocity);
 
         dashTime = startDashTime;
+        sprinting = false;
     }
 
     private void FixedUpdate()
@@ -86,6 +90,12 @@ public class Player : MonoBehaviour
             gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); 
         }
         
+        if (sprinting)
+        {
+            velocity.x = velocity.x * sprintMultiplier;
+        }
+        
+
     }
 
     private void Update()
@@ -93,7 +103,18 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             dash = true;
-        }       
+        }
+        
+        if (Input.GetKeyDown(KeyCode.LeftControl) && controller.collisions.below)
+        {
+            sprinting = true;
+        } 
+        
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            sprinting = false;
+        }
+
     }
 
     public void SetDirectionalInput (Vector2 input)

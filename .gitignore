@@ -1,10 +1,7 @@
-# Created by https://www.gitignore.io/api/unity
-# Edit at https://www.gitignore.io/?templates=unity
-
-### Unity ###
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
+#
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -65,6 +62,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+2dplatformer1/Library/
 
 # End of https://www.gitignore.io/api/unity
-2dplatformer/Library/
+2dplatformer1/Library/metadata/00/00000000000000007000000000000000.info
+

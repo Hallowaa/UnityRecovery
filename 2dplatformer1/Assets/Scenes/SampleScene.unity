@@ -210,13 +210,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 178759613}
-  m_LocalRotation: {x: -0, y: -0, z: 0.50228614, w: 0.8647015}
-  m_LocalPosition: {x: 21.4, y: -0.15, z: -1.8759977}
+  m_LocalRotation: {x: -0, y: -0, z: 0.34110418, w: 0.94002545}
+  m_LocalPosition: {x: 23.44, y: -2.32, z: -1.8759972}
   m_LocalScale: {x: 16.441244, y: 0.49636635, z: 1.6636}
   m_Children: []
   m_Father: {fileID: 1885288371}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 60.303}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 39.888}
 --- !u!61 &178759615
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -745,7 +745,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -100.4, y: -22.806, z: -10}
+  m_LocalPosition: {x: 3.2, y: -13.606, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1187,7 +1187,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 848505546}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 62.82, y: 3.21, z: -1.8759977}
+  m_LocalPosition: {x: 67.1, y: -1.1, z: -1.8759977}
   m_LocalScale: {x: 12.889683, y: 0.48741528, z: 1.6336}
   m_Children: []
   m_Father: {fileID: 1885288371}
@@ -1914,7 +1914,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1115110183}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -100.4, y: -22.806, z: -10}
+  m_LocalPosition: {x: 3.2, y: -13.606, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1604021137}
@@ -2189,7 +2189,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1298646151}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 32.08, y: 7.2, z: -1.8759977}
+  m_LocalPosition: {x: 36.359997, y: 2.89, z: -1.8759977}
   m_LocalScale: {x: 13.557996, y: 0.51268715, z: 1.7183}
   m_Children: []
   m_Father: {fileID: 1885288371}
@@ -2702,7 +2702,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1506157927}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 59.19, y: -8.71, z: -1.8759977}
+  m_LocalPosition: {x: 63.469994, y: -13.02, z: -1.8759977}
   m_LocalScale: {x: 21.873413, y: 0.4382143, z: 1.4687}
   m_Children: []
   m_Father: {fileID: 1885288371}
@@ -2892,7 +2892,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1767490615}
   m_LocalRotation: {x: -0, y: -0, z: -0.48436865, w: 0.87486404}
-  m_LocalPosition: {x: 43.43, y: -0.9, z: -1.8759977}
+  m_LocalPosition: {x: 47.709995, y: -5.21, z: -1.8759977}
   m_LocalScale: {x: 19.197596, y: 0.57958144, z: 1.9425}
   m_Children: []
   m_Father: {fileID: 1885288371}
@@ -3293,6 +3293,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpHeight: 10
   timeToJumpApex: 0.4
+  maxTimesJump: 2
+  timesJumped: 0
+  consecutiveJumpMultiplier: 0.75
+  jumpElapsedTime: Infinity
+  protectedJumpTime: 0.3
+  canJump: 0
+  hasJumped: 0
   wallJumpClimb: {x: 40, y: 50}
   wallJumpOff: {x: 28, y: 19}
   wallLeap: {x: 40, y: 50}
@@ -3305,6 +3312,7 @@ MonoBehaviour:
   sprinting: 0
   sprintMultiplier: 2.1
   controller: {fileID: 0}
+  wallSliding: 0
 --- !u!114 &1936965700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3429,7 +3437,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1936965698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -100.4, y: -24.2, z: 0}
+  m_LocalPosition: {x: 3.2, y: -15, z: 0}
   m_LocalScale: {x: 0.947922, y: 1.0063086, z: 3.4345}
   m_Children: []
   m_Father: {fileID: 0}

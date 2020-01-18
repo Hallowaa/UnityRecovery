@@ -8,6 +8,16 @@ public class Player : MonoBehaviour
 
     public float jumpHeight = 3.5f;
     public float timeToJumpApex = .4f;
+    public int maxTimesJump = 2;
+    public int timesJumped;
+    public float consecutiveJumpMultiplier;
+    // [HideInInspector]
+    public float jumpElapsedTime = Mathf.Infinity;
+    // [HideInInspector]
+    public float protectedJumpTime = 0.2f;
+    public bool canJump;
+    public bool hasJumped;
+
     float accelerationTimeAirborne = .05f;
     float accelerationTimeGrounded = .015f;
     float moveSpeed = 19f;
@@ -24,7 +34,7 @@ public class Player : MonoBehaviour
     public float dashDistance;
     public float dashTime;
     float startDashTime = .1f;
-    float elapsedTime = Mathf.Infinity;
+    float elapsedTime = 0;
     public bool dash;
 
     public bool sprinting;
@@ -38,7 +48,7 @@ public class Player : MonoBehaviour
     public Controller2D controller;
 
     Vector2 directionalInput;
-    bool wallSliding;
+    public bool wallSliding;
     int wallDirX;
     
     private void Start()
@@ -48,6 +58,9 @@ public class Player : MonoBehaviour
         jumpVelocity = Mathf.Abs(gravity * timeToJumpApex);
         print("Gravity: " + gravity + "   Jump Velocity:   " + jumpVelocity);
 
+        hasJumped = false;
+        canJump = true;
+        timesJumped = 0;
         dashTime = startDashTime;
         sprinting = false;
     }
@@ -65,7 +78,6 @@ public class Player : MonoBehaviour
             if (controller.collisions.slidingDownMaxSlope)
             {
                 velocity.y += controller.collisions.slopeNormal.y * -gravity * Time.deltaTime;
-
             }
             else
             {
@@ -94,27 +106,30 @@ public class Player : MonoBehaviour
         {
             velocity.x = velocity.x * sprintMultiplier;
         }
-        
+
+
+        if (hasJumped)
+        {
+            canJump = false;
+            jumpElapsedTime += Time.deltaTime;
+
+            if (jumpElapsedTime >= protectedJumpTime)
+            {
+                canJump = true;
+            }
+        }
+
+
+        HandleJumpCountReset();
 
     }
 
-    private void Update()
+    public void HandleJumpCountReset()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (controller.collisions.below && (timesJumped != 0))
         {
-            dash = true;
+            timesJumped = 0;
         }
-        
-        if (Input.GetKeyDown(KeyCode.LeftControl) && controller.collisions.below)
-        {
-            sprinting = true;
-        } 
-        
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            sprinting = false;
-        }
-
     }
 
     public void SetDirectionalInput (Vector2 input)
@@ -122,9 +137,8 @@ public class Player : MonoBehaviour
         directionalInput = input;
     }
 
-    public void OnJumpInputdown()
+    public void WallJumping()
     {
-
         if (wallSliding)
         {
             if (wallDirX == directionalInput.x)
@@ -143,38 +157,89 @@ public class Player : MonoBehaviour
                 velocity.y = wallLeap.y;
             }
         }
+    }
+    public void OnJumpInputdown()
+    {
 
-        if (controller.collisions.below)
+        if ((timesJumped < maxTimesJump)  && canJump)
         {
             if (controller.collisions.slidingDownMaxSlope)
             {
-                if (directionalInput.x != -Mathf.Sign(controller.collisions.slopeNormal.x)) // not jumping against max slope
-                {
+                if (directionalInput.x != -Mathf.Sign(controller.collisions.slopeNormal.x))
+                { // not jumping against max slope
+                    if (!wallSliding)
+                    {
+                        timesJumped += 1;
+                        hasJumped = true;
+                        jumpElapsedTime = 0;
+                    }
+
                     velocity.y = jumpVelocity * controller.collisions.slopeNormal.y;
                     velocity.x = jumpVelocity * controller.collisions.slopeNormal.x;
+                    
                 }
-                
             }
-            velocity.y = jumpVelocity;
-        }
+            else if (timesJumped > 1)
+            {
+                if (!wallSliding)
+                {
+                    timesJumped += 1;
+                    hasJumped = true;
+                    jumpElapsedTime = 0;
+                }
 
+                velocity.y = jumpVelocity * consecutiveJumpMultiplier;
+            }
+            else
+            {
+                if (!wallSliding)
+                {
+                    timesJumped += 1;
+                    hasJumped = true;
+                    jumpElapsedTime = 0;
+                }
+
+                velocity.y = jumpVelocity;               
+            }
+            
+        }
     }
 
     public void OnDashInputDown()
     {   
          if (dash && controller.collisions.faceDir == 1)
          {
-             controller.collisions.below = false;
-             velocity.y = 0;
-             velocity = Vector2.right * dashDistance;
-             dash = false;
+            if (!controller.collisions.slidingDownMaxSlope)
+            {
+                controller.collisions.below = false;
+                velocity.y = 0;
+                velocity = Vector2.right * dashDistance;
+                dash = false;
+            }
+            else if (controller.collisions.slidingDownMaxSlope)
+            {
+                controller.collisions.below = false;
+                velocity.y = 0;
+                velocity = Vector2.left * dashDistance;
+                dash = false;
+            }            
          }
          else if (dash && controller.collisions.faceDir == -1)
          {
-             controller.collisions.below = false;
-             velocity.y = 0;
-             velocity = Vector2.left * dashDistance;
-             dash = false;
+            if (!controller.collisions.slidingDownMaxSlope)
+            {
+                controller.collisions.below = false;
+                velocity.y = 0;
+                velocity = Vector2.left * dashDistance;
+                dash = false;
+            }
+            else if (controller.collisions.slidingDownMaxSlope)
+            {
+                controller.collisions.below = false;
+                velocity.y = 0;
+                velocity = Vector2.right * dashDistance;
+                dash = false;
+            }
          }       
     } 
 
@@ -185,31 +250,31 @@ public class Player : MonoBehaviour
         wallSliding = false;
         if ((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0 && canSlide)
         {
-                wallSliding = true;
-
-                if (velocity.y < -wallSlideSpeedMax)
-                {
-                    velocity.y = -wallSlideSpeedMax;
-                }
-
-                if (timeToWallUnstick > 0)
-                {
-                    velocityXSmoothing = 0;
-                    velocity.x = 0;
-
-                    if (directionalInput.x != wallDirX && directionalInput.x != 0)
-                    {
-                        timeToWallUnstick -= Time.deltaTime;
-                    }
-                    else
-                    {
-                        timeToWallUnstick = wallStickTime;
-                    }
-                }
-                else
-                {
-                    timeToWallUnstick = wallStickTime;
-                }
+             wallSliding = true;
+          
+             if (velocity.y < -wallSlideSpeedMax)
+             {
+                 velocity.y = -wallSlideSpeedMax;
+             }
+          
+             if (timeToWallUnstick > 0)
+             {
+                 velocityXSmoothing = 0;
+                 velocity.x = 0;
+          
+                 if (directionalInput.x != wallDirX && directionalInput.x != 0)
+                 {
+                     timeToWallUnstick -= Time.deltaTime;
+                 }
+                 else
+                 {
+                     timeToWallUnstick = wallStickTime;
+                 }
+             }
+             else
+             {
+                 timeToWallUnstick = wallStickTime;
+             }
         }
     }
 

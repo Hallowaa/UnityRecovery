@@ -11,12 +11,17 @@ public class Player : MonoBehaviour
     public int maxTimesJump = 2;
     public int timesJumped;
     public float consecutiveJumpMultiplier;
-    // [HideInInspector]
+    [HideInInspector]
     public float jumpElapsedTime = Mathf.Infinity;
-    // [HideInInspector]
+    [HideInInspector]
     public float protectedJumpTime = 0.2f;
     public bool canJump;
     public bool hasJumped;
+    [HideInInspector]
+    public float protectetJumpAfterSlideTime = 0.7f;
+    [HideInInspector]
+    public float jumpAfterSlideElapsedTime = Mathf.Infinity;
+    public bool hasWallJumped;
 
     float accelerationTimeAirborne = .05f;
     float accelerationTimeGrounded = .015f;
@@ -107,7 +112,6 @@ public class Player : MonoBehaviour
             velocity.x = velocity.x * sprintMultiplier;
         }
 
-
         if (hasJumped)
         {
             canJump = false;
@@ -119,14 +123,23 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (hasWallJumped)
+        {
+            canJump = false;
+            jumpAfterSlideElapsedTime += Time.deltaTime;
+
+            if (jumpAfterSlideElapsedTime >= protectetJumpAfterSlideTime)
+            {
+                canJump = true;
+            }
+        }
 
         HandleJumpCountReset();
-
     }
 
     public void HandleJumpCountReset()
     {
-        if (controller.collisions.below && (timesJumped != 0))
+        if (controller.collisions.below && (timesJumped != 0) || wallSliding)
         {
             timesJumped = 0;
         }
@@ -143,16 +156,22 @@ public class Player : MonoBehaviour
         {
             if (wallDirX == directionalInput.x)
             {
+                hasWallJumped = true;
+                jumpAfterSlideElapsedTime = 0;
                 velocity.x = -wallDirX * wallJumpClimb.x;
                 velocity.y = wallJumpClimb.y;
             }
             else if (directionalInput.x == 0)
             {
+                hasWallJumped = true;
+                jumpAfterSlideElapsedTime = 0;
                 velocity.x = -wallDirX * wallJumpOff.x;
                 velocity.y = wallJumpOff.y;
             }
             else
             {
+                hasWallJumped = true;
+                jumpAfterSlideElapsedTime = 0;
                 velocity.x = -wallDirX * wallLeap.x;
                 velocity.y = wallLeap.y;
             }
@@ -175,8 +194,7 @@ public class Player : MonoBehaviour
                     }
 
                     velocity.y = jumpVelocity * controller.collisions.slopeNormal.y;
-                    velocity.x = jumpVelocity * controller.collisions.slopeNormal.x;
-                    
+                    velocity.x = jumpVelocity * controller.collisions.slopeNormal.x;                    
                 }
             }
             else if (timesJumped > 1)
@@ -200,8 +218,7 @@ public class Player : MonoBehaviour
                 }
 
                 velocity.y = jumpVelocity;               
-            }
-            
+            }            
         }
     }
 
@@ -244,37 +261,36 @@ public class Player : MonoBehaviour
     } 
 
     void HandleWallSliding()
-    {
-        
+    {       
         wallDirX = (controller.collisions.left) ? -1 : 1;
         wallSliding = false;
         if ((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0 && canSlide)
         {
-             wallSliding = true;
-          
-             if (velocity.y < -wallSlideSpeedMax)
-             {
-                 velocity.y = -wallSlideSpeedMax;
-             }
-          
-             if (timeToWallUnstick > 0)
-             {
-                 velocityXSmoothing = 0;
-                 velocity.x = 0;
-          
-                 if (directionalInput.x != wallDirX && directionalInput.x != 0)
-                 {
-                     timeToWallUnstick -= Time.deltaTime;
-                 }
-                 else
-                 {
-                     timeToWallUnstick = wallStickTime;
-                 }
-             }
-             else
-             {
-                 timeToWallUnstick = wallStickTime;
-             }
+            wallSliding = true;
+            
+            if (velocity.y < -wallSlideSpeedMax)
+            {
+                velocity.y = -wallSlideSpeedMax;
+            }
+        
+            if (timeToWallUnstick > 0)
+            {
+                velocityXSmoothing = 0;
+                velocity.x = 0;
+        
+                if (directionalInput.x != wallDirX && directionalInput.x != 0)
+                {
+                    timeToWallUnstick -= Time.deltaTime;
+                }
+                else
+                {
+                    timeToWallUnstick = wallStickTime;
+                }
+            }
+            else
+            {
+                timeToWallUnstick = wallStickTime;
+            }
         }
     }
 
@@ -284,7 +300,4 @@ public class Player : MonoBehaviour
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
         velocity.y += gravity * Time.deltaTime;
     }
-
 }
-
-

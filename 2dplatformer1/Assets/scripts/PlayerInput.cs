@@ -15,10 +15,7 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (player.wallSliding && (Input.GetKeyUp(KeyCode.Space)))
-        {
-            player.WallJumping();
-        }
+
     }
     // Update is called once per frame
     void Update()
@@ -26,7 +23,10 @@ public class PlayerInput : MonoBehaviour
         Vector2 directionalInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         player.SetDirectionalInput(directionalInput);
 
-
+        if (player.wallSliding && (Input.GetKeyUp(KeyCode.Space)))
+        {
+            player.WallJumping();
+        }
 
         if (Input.GetKeyDown(KeyCode.Space) && player.canJump && !player.wallSliding)
         {

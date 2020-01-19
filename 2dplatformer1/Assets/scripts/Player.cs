@@ -55,6 +55,8 @@ public class Player : MonoBehaviour
     Vector2 directionalInput;
     public bool wallSliding;
     int wallDirX;
+
+    public bool facingRight;
     
     private void Start()
     {
@@ -77,6 +79,8 @@ public class Player : MonoBehaviour
         HandleWallSliding();
 
         controller.Move(velocity * Time.deltaTime);
+
+
 
         if (controller.collisions.above || controller.collisions.below)
         {
@@ -135,6 +139,22 @@ public class Player : MonoBehaviour
         }
 
         HandleJumpCountReset();
+        Flip();
+    }
+
+
+    public void Flip()
+    {
+        if (controller.collisions.faceDir == 1)
+        {
+            gameObject.transform.localScale = new Vector3(-1, transform.localScale.y, transform.localScale.z);
+            facingRight = true;
+        }
+        else
+        {
+            gameObject.transform.localScale = new Vector3(1, transform.localScale.y, transform.localScale.z);
+            facingRight = false;
+        }
     }
 
     public void HandleJumpCountReset()

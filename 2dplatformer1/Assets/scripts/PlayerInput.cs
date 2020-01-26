@@ -47,5 +47,6 @@ public class PlayerInput : MonoBehaviour
         {
             player.sprinting = false;
         }
+
     }
 }

@@ -3,24 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
 public class Player : MonoBehaviour
 {
 
     public float jumpHeight = 3.5f;
     public float timeToJumpApex = .4f;
     public int maxTimesJump = 2;
+    [HideInInspector]
     public int timesJumped;
     public float consecutiveJumpMultiplier;
     [HideInInspector]
     public float jumpElapsedTime = Mathf.Infinity;
     [HideInInspector]
     public float protectedJumpTime = 0.2f;
+    [HideInInspector]
     public bool canJump;
+    [HideInInspector]
     public bool hasJumped;
     [HideInInspector]
     public float protectetJumpAfterSlideTime = 0.7f;
     [HideInInspector]
     public float jumpAfterSlideElapsedTime = Mathf.Infinity;
+    [HideInInspector]
     public bool hasWallJumped;
 
     float accelerationTimeAirborne = .05f;
@@ -34,12 +39,14 @@ public class Player : MonoBehaviour
     public float wallSlideSpeedMax = 3;
     public float wallStickTime = .25f;
     float timeToWallUnstick;
+    [HideInInspector]
     public bool canSlide;
 
     public float dashDistance;
     public float dashTime;
     float startDashTime = .1f;
     float elapsedTime = 0;
+    [HideInInspector]
     public bool dash;
 
     public bool sprinting;
@@ -53,9 +60,11 @@ public class Player : MonoBehaviour
     public Controller2D controller;
 
     Vector2 directionalInput;
+    [HideInInspector]
     public bool wallSliding;
-    int wallDirX;
 
+    int wallDirX;
+    [HideInInspector]
     public bool facingRight;
     
     private void Start()
@@ -80,8 +89,6 @@ public class Player : MonoBehaviour
 
         controller.Move(velocity * Time.deltaTime);
 
-
-
         if (controller.collisions.above || controller.collisions.below)
         {
             if (controller.collisions.slidingDownMaxSlope)
@@ -94,28 +101,41 @@ public class Player : MonoBehaviour
             }
         }
 
+        TimingDashLength();
+
+        TimeJumpAllow();
+
+        Sprinting();
+
+        ProtectJumpCount();
+
+        HandleJumpCountReset();
+
+        Flip();
+    }
+
+    void TimingDashLength()
+    {
         if (dash)
         {
             elapsedTime = 0f;
         }
 
         if (elapsedTime < dashTime)
-        {           
+        {
             elapsedTime += Time.deltaTime;
             gravity = 0;
-            controller.collisions.below = false; 
+            controller.collisions.below = false;
             OnDashInputDown();
         }
         else if (elapsedTime > dashTime)
         {
-            gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); 
+            gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
         }
-        
-        if (sprinting)
-        {
-            velocity.x = velocity.x * sprintMultiplier;
-        }
+    }
 
+    void TimeJumpAllow()
+    {
         if (hasJumped)
         {
             canJump = false;
@@ -126,7 +146,10 @@ public class Player : MonoBehaviour
                 canJump = true;
             }
         }
+    }
 
+    void ProtectJumpCount()
+    {
         if (hasWallJumped)
         {
             canJump = false;
@@ -137,12 +160,15 @@ public class Player : MonoBehaviour
                 canJump = true;
             }
         }
-
-        HandleJumpCountReset();
-        Flip();
     }
 
-
+    void Sprinting()
+    {
+        if (sprinting)
+        {
+            velocity.x = velocity.x * sprintMultiplier;
+        }
+    }
     public void Flip()
     {
         if (controller.collisions.faceDir == 1)

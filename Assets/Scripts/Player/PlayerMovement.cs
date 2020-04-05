@@ -23,9 +23,11 @@ public class PlayerMovement : MonoBehaviour
     float x;
     float z;
 
+    [Header("Dashing")]
     bool dash = false;
     public float dashMaximumTime = 0.4f;
     float timeSpentDashing = 0f;
+    public float dashStrength = 60f;
 
     [Header("Wall Jumping")]
     public bool isStickingToWall;
@@ -73,9 +75,7 @@ public class PlayerMovement : MonoBehaviour
         if (dash)
         {
             controller.Move(moveDir * Time.deltaTime);
-        }
-
-        
+        }      
     }
 
     void HandleInput()
@@ -107,7 +107,15 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleDashing()
     {
-        moveDir = move.normalized + Singleton.Instance.playerCamera.transform.forward * 80f; 
+        if(x == 0f && z >= 0f)
+        {
+            moveDir = move.normalized + Singleton.Instance.playerCamera.transform.forward * dashStrength * 1.34f;
+        }
+        else
+        {
+            moveDir = move.normalized * dashStrength;
+        }
+
 
         timeSpentDashing += Time.deltaTime;
 
